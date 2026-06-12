@@ -8,6 +8,7 @@ import { Model as Galeria } from "./models/Galeria.jsx";
 
 const DEBUG_CAMERA = false;
 
+
 const DebugCamera = () => {
   const { camera } = useThree();
   const controlsRef = useRef();
@@ -51,9 +52,9 @@ export const Experience = () => {
         setIntroFinished(true);
       } 
       else if (currentScene === "galeria") {
-        controls.setLookAt(-0.37, 2.4, 26.98, 0.07, 4.49, 0.64, false);
+        controls.setLookAt (3.94, 4.74, - 26.11, 0.5, 3.22, 0.16, false);
         controls.smoothTime = 0.8;
-        await controls.setLookAt(0.77, 2.72, 14.83, 0.57, 3.97, 0.6, true);
+        await controls.setLookAt   (-0.22, 4.15, -15.54, -0.24, 4.18, 0.52, true);
         controls.smoothTime = 0.6;
       }
     };
@@ -87,7 +88,7 @@ export const Experience = () => {
       museoGroupRef.current.rotation.x = THREE.MathUtils.lerp(museoGroupRef.current.rotation.x, targetRotX, 0.05);
     }
 
-    // 🟦 NUEVO: Parallax independiente para la escena de la Galería
+    // Parallax independiente para la escena de la Galería
     if (galeriaGroupRef.current && currentScene === "galeria") {
       galeriaGroupRef.current.rotation.y = THREE.MathUtils.lerp(galeriaGroupRef.current.rotation.y, targetRotY, 0.05);
       galeriaGroupRef.current.rotation.x = THREE.MathUtils.lerp(galeriaGroupRef.current.rotation.x, targetRotX, 0.05);
