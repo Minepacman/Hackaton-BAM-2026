@@ -15,9 +15,6 @@ export function Model({ onTransitionComplete, ...props }) {
   const [fadeOverlay, setFadeOverlay] = useState(true)
   const overlayRef = useRef()
 
-  // ─────────────────────────────────────────────────────────
-  // 🟦 ESTADOS DEL MAPA (PUZZLE 1)
-  // ─────────────────────────────────────────────────────────
   const MAPA_INITIAL_POSITION = [-5.418, 3.717, 4.537]
   const [mapaPosition, setMapaPosition] = useState(MAPA_INITIAL_POSITION)
 
@@ -34,9 +31,6 @@ export function Model({ onTransitionComplete, ...props }) {
   const dragPlane = useRef(new THREE.Plane())
   const dragOffset = useRef(new THREE.Vector3())
 
-  // ─────────────────────────────────────────────────────────
-  // 🟦 ESTADOS DE LA BICI GRANDE (PUZZLE 2)
-  // ─────────────────────────────────────────────────────────
   const BICI_INITIAL_POS_ARR = [4.099, 3.94, 3.965]
   const [biciPosition, setBiciPosition] = useState(BICI_INITIAL_POS_ARR)
   const [biciSolved, setBiciSolved] = useState(false)
@@ -48,16 +42,11 @@ export function Model({ onTransitionComplete, ...props }) {
   const biciDragOffset = useRef(new THREE.Vector3())
   const TOLERANCIA_OBJETIVO_BICI = 15.8 
 
-  // ─────────────────────────────────────────────────────────
-  // 🟦 ESTADOS DE CINEMÁTICA FINAL
-  // ─────────────────────────────────────────────────────────
   const [cinematicStarted, setCinematicStarted] = useState(false)
   const cardboardOverlayRef = useRef()
   const transitionFired = useRef(false) // Evita múltiples ejecuciones en el useFrame
 
-  // ─────────────────────────────────────────────────────────
-  // 🟦 REFERENCIAS DE ANIMACIÓN
-  // ─────────────────────────────────────────────────────────
+
   const bicicletoRef = useRef()
   const mapaMeshRef = useRef()
   const biciRef = useRef() 
@@ -309,7 +298,7 @@ export function Model({ onTransitionComplete, ...props }) {
 
       setTimeout(() => {
         setCinematicStarted(true)
-      }, 1200)
+      }, 1000)
 
     } else {
       isReturningBici.current = true 

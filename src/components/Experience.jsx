@@ -63,22 +63,17 @@ export const Experience = () => {
         controls.smoothTime = 0.6;
       }
       else if (currentScene === "mapa") {
-         controls.setLookAt(0.81, 3.69, - 0.25, -0.33, 3.5, 0.23, false);
-
+        controls.setLookAt(0.81, 3.69, - 0.25, -0.33, 3.5, 0.23, false);
         controls.smoothTime = 0.9;
-        // [Posición final enfocada de juego] -> Hacia donde mira [0, 1.99, 0]
         await controls.setLookAt(8, 2.1, -0.15, 0.49, 2.06, -0.09, true);
         controls.smoothTime = 0.6;
       }
       else if (currentScene === "casa") {
         controls.setLookAt(5.95, -4.33, 4.93, 1.59, -3.34, -2.35, false);
         controls.smoothTime = 0.8;
+        // Vista general de la casa antes del clic
         await controls.setLookAt(-1.06, -2.3, 5.35, -1.01, -2.07, -0.93, true);
         controls.smoothTime = 0.6;
-
-          
-
-      
       }
     };
 
@@ -93,12 +88,13 @@ export const Experience = () => {
     }
   }, [showCasa, currentScene]);
 
-  // 3️⃣ Animación de aproximación al hacer clic en la vitrina interna
+  // 3️⃣ 🎯 Animación de aproximación al hacer clic en la vitrina
   const handleVitrinaZoom = async () => {
     if (!cameraControlsRef.current) return;
-    cameraControlsRef.current.smoothTime = 0.9; // Ajusta el tiempo si deseas un zoom más veloz o pausado
-    // Ejecución de las coordenadas de destino solicitadas
-    await cameraControlsRef.current.setLookAt(-1.06, -2.3, 5.35, -1.01, -2.07, -0.93, true);
+    cameraControlsRef.current.smoothTime = 0.9; // Velocidad del zoom (ajusta a tu gusto)
+    
+    // 👇 NUEVAS COORDENADAS: (Posición de Cámara X, Y, Z) , (Mirando hacia X, Y, Z)
+    await cameraControlsRef.current.setLookAt(0.77, -0.9, 0.12, 0.77, -0.9, 0.11, true);
   };
 
   const handleEdificioToggle = async (abierto) => {
@@ -195,7 +191,7 @@ export const Experience = () => {
               <CasaEscenario 
                 position={[0, -2, -5]} 
                 scale={1} 
-                onZoomVitrina={handleVitrinaZoom} // Asignamos la función de transición de cámara
+                onZoomVitrina={handleVitrinaZoom} // 👈 El clic ejecutará las nuevas coordenadas
               />
             </group>
           )}
