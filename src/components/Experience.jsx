@@ -5,9 +5,10 @@ import { degToRad } from "three/src/math/MathUtils.js";
 import * as THREE from "three";
 import { Model as Museo } from "./models/Museo.jsx";
 import { Model as Galeria } from "./models/Galeria.jsx";
+import { Model as Mapa } from "./models/Mapa.jsx"; 
+import { Model as CasaEscenario } from "./models/CasaEscenario.jsx"; 
 
 const DEBUG_CAMERA = false;
-
 
 const DebugCamera = () => {
   const { camera } = useThree();
@@ -32,11 +33,15 @@ const DebugCamera = () => {
 export const Experience = () => {
   const [introFinished, setIntroFinished] = useState(false);
   const [currentScene, setCurrentScene] = useState("museo"); 
+  const [showCasa, setShowCasa] = useState(false); 
   
   const museoGroupRef = useRef();
-  const galeriaGroupRef = useRef(); // 🟦 NUEVO: Referencia para el grupo de la galería
+  const galeriaGroupRef = useRef(); 
+  const mapaGroupRef = useRef(); 
+  const casaGroupRef = useRef(); 
   const cameraControlsRef = useRef();
 
+  // 1️⃣ Animación e introducción de cámaras base
   useEffect(() => {
     if (DEBUG_CAMERA) return;
 
@@ -57,10 +62,44 @@ export const Experience = () => {
         await controls.setLookAt   (-0.22, 4.15, -15.54, -0.24, 4.18, 0.52, true);
         controls.smoothTime = 0.6;
       }
+      else if (currentScene === "mapa") {
+         controls.setLookAt(0.81, 3.69, - 0.25, -0.33, 3.5, 0.23, false);
+
+        controls.smoothTime = 0.9;
+        // [Posición final enfocada de juego] -> Hacia donde mira [0, 1.99, 0]
+        await controls.setLookAt(8, 2.1, -0.15, 0.49, 2.06, -0.09, true);
+        controls.smoothTime = 0.6;
+      }
+      else if (currentScene === "casa") {
+        controls.setLookAt(5.95, -4.33, 4.93, 1.59, -3.34, -2.35, false);
+        controls.smoothTime = 0.8;
+        await controls.setLookAt(-1.06, -2.3, 5.35, -1.01, -2.07, -0.93, true);
+        controls.smoothTime = 0.6;
+
+          
+
+      
+      }
     };
 
     animateIntro();
   }, [currentScene]);
+
+  // 2️⃣ Animación de encuadre simultáneo a la transición de la mano
+  useEffect(() => {
+    if (showCasa && cameraControlsRef.current && currentScene === "mapa") {
+      cameraControlsRef.current.smoothTime = 1.2; 
+      cameraControlsRef.current.setLookAt(0, 2, 5, 0, 1, 0, true);
+    }
+  }, [showCasa, currentScene]);
+
+  // 3️⃣ Animación de aproximación al hacer clic en la vitrina interna
+  const handleVitrinaZoom = async () => {
+    if (!cameraControlsRef.current) return;
+    cameraControlsRef.current.smoothTime = 0.9; // Ajusta el tiempo si deseas un zoom más veloz o pausado
+    // Ejecución de las coordenadas de destino solicitadas
+    await cameraControlsRef.current.setLookAt(-1.06, -2.3, 5.35, -1.01, -2.07, -0.93, true);
+  };
 
   const handleEdificioToggle = async (abierto) => {
     if (!cameraControlsRef.current) return;
@@ -73,25 +112,28 @@ export const Experience = () => {
     }
   };
 
-  const handleTransitionToGaleria = () => {
-    setCurrentScene("galeria"); 
-  };
-
   useFrame((state) => {
-    // Calculamos los objetivos de rotación basados en la posición del mouse
     const targetRotY = state.pointer.x * 0.045;
     const targetRotX = -state.pointer.y * 0.01;
 
-    // Parallax para la escena del Museo
     if (introFinished && museoGroupRef.current && currentScene === "museo") {
       museoGroupRef.current.rotation.y = THREE.MathUtils.lerp(museoGroupRef.current.rotation.y, targetRotY, 0.05);
       museoGroupRef.current.rotation.x = THREE.MathUtils.lerp(museoGroupRef.current.rotation.x, targetRotX, 0.05);
     }
 
-    // Parallax independiente para la escena de la Galería
     if (galeriaGroupRef.current && currentScene === "galeria") {
       galeriaGroupRef.current.rotation.y = THREE.MathUtils.lerp(galeriaGroupRef.current.rotation.y, targetRotY, 0.05);
       galeriaGroupRef.current.rotation.x = THREE.MathUtils.lerp(galeriaGroupRef.current.rotation.x, targetRotX, 0.05);
+    }
+
+    if (mapaGroupRef.current && currentScene === "mapa") {
+      mapaGroupRef.current.rotation.y = THREE.MathUtils.lerp(mapaGroupRef.current.rotation.y, targetRotY, 0.05);
+      mapaGroupRef.current.rotation.x = THREE.MathUtils.lerp(mapaGroupRef.current.rotation.x, targetRotX, 0.05);
+    }
+
+    if (casaGroupRef.current && (currentScene === "casa" || showCasa)) {
+      casaGroupRef.current.rotation.y = THREE.MathUtils.lerp(casaGroupRef.current.rotation.y, targetRotY, 0.05);
+      casaGroupRef.current.rotation.x = THREE.MathUtils.lerp(casaGroupRef.current.rotation.x, targetRotX, 0.05);
     }
   });
 
@@ -119,24 +161,55 @@ export const Experience = () => {
       <Environment preset="dawn" background={currentScene === "museo"} blur={3} />
 
       {currentScene === "galeria" && <color attach="background" args={["#1e293b"]} />}
+      {(currentScene === "mapa" || currentScene === "casa") && <color attach="background" args={["#111111"]} />}
 
-      {currentScene === "museo" ? (
+      {/* 🏛️ MUSEO */}
+      {currentScene === "museo" && (
         <group ref={museoGroupRef}>
           <Museo 
             position={[0, 0, 0]} 
             scale={0.5} 
             onEdificioToggle={handleEdificioToggle} 
-            onFullBlue={handleTransitionToGaleria} 
+            onFullBlue={() => setCurrentScene("galeria")} 
           />
         </group>
-      ) : (
-        /* 🟦 NUEVO: Envolvemos la galería en un grupo con su propia referencia para animar el Parallax */
+      )}
+
+      {/* 🖼️ GALERÍA */}
+      {currentScene === "galeria" && (
         <group ref={galeriaGroupRef}>
           <Galeria 
             position={[0, 0, 0]} 
             rotation={[0, 0, 0]} 
             scale={1} 
+            onTransitionComplete={() => setCurrentScene("mapa")} 
           />
+        </group>
+      )}
+
+      {/* 🗺️ MAPA Y 🏠 CASA ESCENARIO */}
+      {(currentScene === "mapa" || currentScene === "casa") && (
+        <group>
+          {(showCasa || currentScene === "casa") && (
+            <group ref={casaGroupRef}>
+              <CasaEscenario 
+                position={[0, -2, -5]} 
+                scale={1} 
+                onZoomVitrina={handleVitrinaZoom} // Asignamos la función de transición de cámara
+              />
+            </group>
+          )}
+          
+          {currentScene === "mapa" && (
+            <group ref={mapaGroupRef}>
+              <Mapa 
+                position={[0, 0, 0]} 
+                scale={1} 
+                onReachPoint1={() => setShowCasa(true)} 
+                onTransitionEnd={() => setCurrentScene("casa")} 
+              />
+            </group>
+          )}
         </group>
       )}
     </>
@@ -145,3 +218,5 @@ export const Experience = () => {
 
 useGLTF.preload("/models/museo.glb");
 useGLTF.preload("/models/galeria.glb");
+useGLTF.preload("/models/mapa.glb");
+useGLTF.preload("/models/CasaEscenario.glb");

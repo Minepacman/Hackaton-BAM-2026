@@ -8,7 +8,7 @@ import { useGLTF } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 
-export function Model(props) {
+export function Model({ onTransitionComplete, ...props }) {
   const { nodes, materials } = useGLTF('/models/galeria.glb')
   const { camera } = useThree()
 
@@ -53,6 +53,7 @@ export function Model(props) {
   // ─────────────────────────────────────────────────────────
   const [cinematicStarted, setCinematicStarted] = useState(false)
   const cardboardOverlayRef = useRef()
+  const transitionFired = useRef(false) // Evita múltiples ejecuciones en el useFrame
 
   // ─────────────────────────────────────────────────────────
   // 🟦 REFERENCIAS DE ANIMACIÓN
@@ -60,7 +61,7 @@ export function Model(props) {
   const bicicletoRef = useRef()
   const mapaMeshRef = useRef()
   const biciRef = useRef() 
-  const biciOcultaRef = useRef() // <--- REFERENCIA NUEVA AÑADIDA
+  const biciOcultaRef = useRef() 
 
   const BICICLETO_INITIAL_POS = useMemo(() => new THREE.Vector3(-1.773, 1.504, 7.218), [])
   const BICICLETO_FLOOR_POS = useMemo(() => new THREE.Vector3(-1.773, 0.71, 7.218), []) 
@@ -128,16 +129,14 @@ export function Model(props) {
 
     // 5. Lógica Completa de la Bici Grande (PUZZLE 2)
     if (biciSolved) {
-      // Bici absorbida
       if (biciRef.current && bicicletoRef.current) {
         biciRef.current.position.lerp(bicicletoRef.current.position, 5 * delta)
         biciRef.current.scale.lerp(new THREE.Vector3(0, 0, 0), 3 * delta)
       }
     } else if (isBicicletoInFloor.current) {
       if (isDraggingBici.current) {
-        // Nada extra, render actualiza su posición
+        // Render actualiza posición nativa
       } else if (isReturningBici.current) {
-        // Regreso suave si falla
         setBiciPosition((prevPos) => {
           const current = new THREE.Vector3(...prevPos)
           const origin = BICI_INITIAL_POS
@@ -149,7 +148,6 @@ export function Model(props) {
           return [current.x, current.y, current.z]
         })
       } else {
-        // Temblor pidiendo ser arrastrada
         const shakeX = Math.sin(time * 40) * 0.08
         const shakeZ = Math.cos(time * 45) * 0.08
         if (biciRef.current) {
@@ -162,50 +160,45 @@ export function Model(props) {
 
    // 6. 🎬 CINEMÁTICA FINAL: Movimiento diagonal y textura de cartón
     if (cinematicStarted) {
-      // 🚴‍♂️ Velocidad y dirección del movimiento diagonal (hacia el fondo)
       const speedX = .84; 
-      const speedZ = -15; // Valor negativo para alejarlo de la cámara
+      const speedZ = -15; 
       
-      // ==========================================
-      // 1️⃣ FASE 1: MOVER A LOS PERSONAJES
-      // ==========================================
-      
-      // Movemos el Bicicleto2
+      // Movemos los personajes hacia el fondo
       if (bicicletoRef.current) {
         bicicletoRef.current.position.x += speedX * delta;
         bicicletoRef.current.position.z += speedZ * delta;
       }
       
-      // Movemos la Bicicleta Oculta a la misma velocidad
       if (biciOcultaRef.current) {
         biciOcultaRef.current.position.x += speedX * delta;
         biciOcultaRef.current.position.z += speedZ * delta;
       }
 
-      // 🛑 Calculamos si el monito ya llegó a su destino (ajusta el -15 según tu escena)
       const haTerminadoRecorrido = bicicletoRef.current && bicicletoRef.current.position.z <= -15;
 
-      // ==========================================
-      // 2️⃣ FASE 2: ANIMACIÓN DEL CARTÓN
-      // ==========================================
-      
-      // Solo entra aquí si el monito ya pasó de la marca Z = -15
+      // Animación del plano de cartón
       if (haTerminadoRecorrido && cardboardOverlayRef.current) {
         const camPos = state.camera.position;
         const camDir = new THREE.Vector3();
         state.camera.getWorldDirection(camDir);
 
-        // Posicionamos el cartón justo frente a la cámara
         cardboardOverlayRef.current.position.copy(camPos);
         cardboardOverlayRef.current.position.addScaledVector(camDir, 0.3); 
         cardboardOverlayRef.current.lookAt(camPos);
         
-        // Aumentamos la opacidad suavemente (Fade-in)
         cardboardOverlayRef.current.material.opacity = THREE.MathUtils.lerp(
           cardboardOverlayRef.current.material.opacity, 
           1, 
           1.5 * delta
         );
+
+        // 🔄 Transición inmediata al Mapa cuando el cartón tape toda la pantalla
+        if (cardboardOverlayRef.current.material.opacity > 0.98 && !transitionFired.current) {
+          transitionFired.current = true;
+          if (onTransitionComplete) {
+            onTransitionComplete();
+          }
+        }
       }
     }
   })
@@ -312,16 +305,13 @@ export function Model(props) {
     const distancia2D = Math.sqrt(dx * dx + dy * dy)
 
     if (distancia2D <= TOLERANCIA_OBJETIVO_BICI) {
-      console.log("¡Fusionados!")
       setBiciSolved(true) 
 
-      // 🎬 Dispara la cinemática después de 1.2 segundos
       setTimeout(() => {
         setCinematicStarted(true)
       }, 1200)
 
     } else {
-      console.log("Fallaste. Regresando bici...")
       isReturningBici.current = true 
     }
   }
