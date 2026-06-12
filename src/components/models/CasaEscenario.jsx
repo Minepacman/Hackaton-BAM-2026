@@ -80,6 +80,8 @@ export function Model({ onZoomVitrina, ...props }) {
         <mesh geometry={nodes.Plane026.geometry} material={materials.cardboard} />
         <mesh geometry={nodes.Plane026_1.geometry} material={materials['comedor.001']} />
       </group>
+      
+      //muñeca
       <group position={[0.109, 1.82, -4.39]} rotation={[1.55, -0.178, -0.013]} scale={0.447}>
         <mesh geometry={nodes.Plane027.geometry} material={materials['Material.012']} />
         <mesh geometry={nodes.Plane027_1.geometry} material={materials['Material.009']} />
