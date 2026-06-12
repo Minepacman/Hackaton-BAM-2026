@@ -1,0 +1,106 @@
+#root {
+  width: 100vw;
+  height: 100vh;
+}
+
+body {
+  margin: 0;
+}
+
+
+/* Estilos del inicio */  
+
+/* index.css */
+#root {
+  width: 100vw;
+  height: 100vh;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #b8956a;
+  overflow: hidden;
+}
+
+*, *::before, *::after { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; 
+}
+
+/* ── Escenario principal: 16:9 Responsivo Absoluto ─────── */
+#escenario {
+  position: relative;
+  width: 100vw;
+  height: 56.25vw;
+  max-height: 100vh;
+  max-width: 177.78vh;
+  aspect-ratio: 16 / 9;
+  margin: auto;
+  overflow: hidden;
+}
+
+/* ── Capas e Imágenes 2D ── */
+.capa {
+  position: absolute;
+  display: block;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Permite que los clics traspasen al Canvas 3D */
+}
+
+#fondo { z-index: 0; }
+#deco-tl, #deco-tr, #deco-bl, #deco-br, #deco-left, #deco-bottom { z-index: 1; }
+#titulo { z-index: 3; } /* El título va arriba del Canvas (que será z-index 2) */
+
+/* ── Botones ── */
+.boton-independiente {
+  position: absolute;
+  cursor: pointer;
+  width: 22%;
+  left: 62%;
+  z-index: 4; /* Los botones hasta arriba */
+  transition: transform 0.2s ease-in-out, filter 0.2s ease-in-out;
+  pointer-events: auto; /* Estos sí deben ser clickeables */
+}
+
+@media (hover: hover) {
+  .boton-independiente:hover {
+    transform: scale(1.08);
+    filter: brightness(1.1);
+  }
+}
+.boton-independiente:active { transform: scale(0.95); }
+
+#btn-inicio { top: 22%; }
+#btn-creditos { top: 45%; }
+#btn-info { top: 68%; }
+
+@media (orientation: portrait) {
+  .boton-independiente {
+    width: 32%;
+    left: 58%;
+  }
+}
+
+@media (max-width: 600px) {
+  #btn-inicio { top: 20%; }
+  #btn-creditos { top: 46%; }
+  #btn-info { top: 72%; }
+}
+
+/* ── Canvas 3D ── */
+.canvas-container {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;/* Entre el fondo y los botones  z-index: 5;*/
+}
+

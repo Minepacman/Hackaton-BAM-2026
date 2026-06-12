@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Umbrales</title>
+
+  <style>
+    /* Estilos del inicio a consideracion moverlos a un archivo CSS separado de esto XD */
+    /* ── Reset ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; 
+      height: 100%;
+      overflow: hidden;
+      background: #b8956a;
+    }
+
+    /* Centra el escenario vertical y horizontalmente en cualquier pantalla */
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Escenario principal: 16:9 Responsivo Absoluto ─────── */
+    #escenario {
+      position: relative;
+      width: 100vw;
+      height: 56.25vw;      /* Calcula dinámicamente la altura 16:9 (9 / 16 * 100) */
+      max-height: 100vh;    /* No permite que supere el alto de la pantalla */
+      max-width: 177.78vh;  /* No permite que supere el ancho proporcional (16 / 9 * 100) */
+      aspect-ratio: 16 / 9;
+      margin: auto;
+      overflow: hidden;
+    }
+
+    /* ── Capa base: toda imagen es absoluta dentro del escenario ── */
+    .capa {
+      position: absolute;
+      display: block;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       1. FONDO Y ELEMENTOS DECORATIVOS
+       ══════════════════════════════════════════════════════════ */
+    #fondo { z-index: 0; }
+    #deco-tl, #deco-tr, #deco-bl, #deco-br, #deco-left, #deco-bottom {
+      z-index: 1;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       2. TÍTULO Y ARTE PRINCIPAL
+       ══════════════════════════════════════════════════════════ */
+    #titulo {
+      z-index: 2;
+    }
+
+    #esqueleto {
+      z-index: 2;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       3. BOTONES DE NAVEGACIÓN
+       ══════════════════════════════════════════════════════════ */
+    .boton-independiente {
+      position: absolute;
+      cursor: pointer;
+      width: 22%;          /* Tamaño base responsivo para pantallas grandes */
+      left: 62%;           /* Posicionado a la derecha del esqueleto */
+      z-index: 4;
+      transition: transform 0.2s ease-in-out, filter 0.2s ease-in-out;
+    }
+
+    /* Efecto Hover solo para dispositivos con mouse */
+    @media (hover: hover) {
+      .boton-independiente:hover {
+        transform: scale(1.08);
+        filter: brightness(1.1);
+      }
+    }
+
+    /* Feedback visual al pulsar (ideal para móviles y clics) */
+    .boton-independiente:active {
+      transform: scale(0.95);
+    }
+
+    /* Posiciones verticales proporcionales al contenedor */
+    #btn-inicio {
+      top: 22%;
+    }
+
+    #btn-creditos {
+      top: 45%;
+    }
+
+    #btn-info {
+      top: 68%;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       4. MEDIA QUERIES (ADAPTACIÓN MÓVIL / VERTICAL)
+       ══════════════════════════════════════════════════════════ */
+    
+    /* Cuando la pantalla es más alta que ancha (Celulares en vertical) */
+    @media (orientation: portrait) {
+      .boton-independiente {
+        width: 32%;    /* Hacemos los botones más grandes para que sean fáciles de pulsar */
+        left: 58%;     /* Los movemos ligeramente a la izquierda para que no se corten con el borde */
+      }
+    }
+
+    /* Para pantallas extremadamente pequeñas o resoluciones bajas */
+    @media (max-width: 600px) {
+      #btn-inicio { top: 20%; }
+      #btn-creditos { top: 46%; }
+      #btn-info { top: 72%; }
+    }
+
+  </style>
+</head>
+<body>
+
+<div id="escenario">
+
+  <img id="fondo" class="capa" src="images/IMG_2252.png" alt="Fondo" />
+
+  <img id="deco-tl"     class="capa" src="images/IMG_2254.png" alt="" />
+  <img id="deco-tr"     class="capa" src="images/IMG_2255.png" alt="" />
+  <img id="deco-bl"     class="capa" src="images/IMG_2256.png" alt="" />
+  <img id="deco-br"     class="capa" src="images/IMG_2257.png" alt="" />
+  <img id="deco-left"   class="capa" src="images/IMG_2258.png" alt="" />
+  <img id="deco-bottom" class="capa" src="images/IMG_2259.png" alt="" />
+  
+  <img id="titulo"      class="capa" src="images/IMG_2266.png" alt="Umbrales" />
+  <img id="esqueleto"   class="capa" src="images/IMG_2253.png" alt="Esqueleto en bicicleta" />
+
+  <a href="URL_DESTINO_INICIO">
+    <img src="images/IMG_2284.png" alt="Inicio" class="boton-independiente" id="btn-inicio" />
+  </a>
+
+  <a href="URL_DESTINO_CREDITOS">
+    <img src="images/IMG_2285.png" alt="Créditos" class="boton-independiente" id="btn-creditos" />
+  </a>
+
+  <a href="URL_DESTINO_INFO">
+    <img src="images/IMG_2283.png" alt="Información" class="boton-independiente" id="btn-info" />
+  </a>
+
+</div>
+
+</body>
+</html>
